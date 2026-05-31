@@ -1,11 +1,13 @@
 
 <!DOCTYPE html>
+<!-- saved from url=(0051)https://funquiz.co.kr/quiz/games/rhythm/rhythm.html -->
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MP3 분석 리듬게임 (HELL)</title>
+    <title>MP3 분석 리듬게임 (EASY)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
@@ -171,17 +173,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            padding: 8px clamp(4px, 2.5vw, 12px);
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
-            gap: 4px;
+            padding: 10px clamp(5px, 3vw, 15px);
+            gap: 5px;
         }
 
         #score-board {
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(14px, 4vw, 18px);
+            font-size: clamp(11px, 3.2vw, 14px);
             font-weight: 700;
             color: #ffaa00;
             text-shadow: 0 0 10px rgba(255, 170, 0, 0.6);
@@ -191,8 +189,7 @@
 
         #stats-board {
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(11.5px, 3.2vw, 14.5px);
-            font-weight: 700;
+            font-size: clamp(11px, 3.2vw, 14px);
             color: #00ffaa;
             text-shadow: 0 0 5px rgba(0, 255, 170, 0.5);
             margin: 0;
@@ -321,14 +318,14 @@
                 <button class="diff-btn" data-diff="hard">HARD</button>
             </div>
             <p id="mode-desc" style="font-size: 14px; color: #ccc; margin-bottom: 20px;">
-                기초부터 차근차근! 느린 속도와 여유로운 박자의 입문자용 모드입니다.<br><br>
+                노트가 천천히 내려오는 쉬운 모드입니다.<br><br>
                 PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span
                     class="key">K</span><br><br>
                 모바일: 화면의 각 레인을 터치하세요!
             </p>
             <div class="upload-btn-wrapper">
                 <button class="btn">MP3 파일 선택</button>
-                <input type="file" id="audio-upload" accept="audio/mpeg, audio/mp3, audio/wav" />
+                <input type="file" id="audio-upload" accept="audio/mpeg, audio/mp3, audio/wav">
             </div>
             <div id="status-text"></div>
         </div>
@@ -383,9 +380,9 @@
             missWindow: 0.6,
             combo: 0,
             maxCombo: 0,
+            lastJudgment: "",
             judgmentAlpha: 0,
-            duration: 0,
-            lastVibrateTime: 0
+            duration: 0
         };
 
         // 난이도 선택 로직
@@ -397,9 +394,9 @@
                 btn.classList.add('active');
                 gameData.difficulty = btn.dataset.diff;
                 if (gameData.difficulty === 'easy') {
-                    modeDesc.innerHTML = '기초부터 차근차근! 느린 속도와 여유로운 박자의 입문자용 모드입니다.<br><br>PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span class="key">K</span><br><br>모바일: 화면의 각 레인을 터치하세요!';
+                    modeDesc.innerHTML = '노트가 천천히 내려오는 쉬운 모드입니다.<br><br>PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span class="key">K</span><br><br>모바일: 화면의 각 레인을 터치하세요!';
                 } else {
-                    modeDesc.innerHTML = '도전적인 박자와 빠른 속도! 리듬 게임 숙련자를 위한 하드 모드입니다.<br><br>PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span class="key">K</span><br><br>모바일: 화면의 각 레인을 터치하세요!';
+                    modeDesc.innerHTML = '노트가 빠르게 내려오고 판정이 엄격한 하드 모드입니다.<br><br>PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span class="key">K</span><br><br>모바일: 화면의 각 레인을 터치하세요!';
                 }
             });
         });
@@ -442,164 +439,85 @@
         });
 
         async function analyzeVocalAndGenerateNotes(buffer) {
-            const sampleRate = buffer.sampleRate;
-            
-            // 1. 보컬/멜로디 분석
-            const vocalOffline = new OfflineAudioContext(buffer.numberOfChannels, buffer.length, sampleRate);
-            const vocalSource = vocalOffline.createBufferSource();
-            vocalSource.buffer = buffer;
-            const hp = vocalOffline.createBiquadFilter();
-            hp.type = 'highpass'; hp.frequency.value = 400;
-            const lpV = vocalOffline.createBiquadFilter();
-            lpV.type = 'lowpass'; lpV.frequency.value = 3000;
-            vocalSource.connect(hp); hp.connect(lpV); lpV.connect(vocalOffline.destination);
-            vocalSource.start(0);
-            const renderedVocal = await vocalOffline.startRendering();
-            const vocalData = renderedVocal.getChannelData(0);
+            // 보컬 영역(약 300Hz ~ 3400Hz)만 골라내기 위해 오프라인 렌더링 사용
+            const offlineCtx = new OfflineAudioContext(buffer.numberOfChannels, buffer.length, buffer.sampleRate);
+            const source = offlineCtx.createBufferSource();
+            source.buffer = buffer;
 
-            // 2. 킥/베이스 분석
-            const kickOffline = new OfflineAudioContext(buffer.numberOfChannels, buffer.length, sampleRate);
-            const kickSource = kickOffline.createBufferSource();
-            kickSource.buffer = buffer;
-            const lpK = kickOffline.createBiquadFilter();
-            lpK.type = 'lowpass'; lpK.frequency.value = 150;
-            kickSource.connect(lpK); lpK.connect(kickOffline.destination);
-            kickSource.start(0);
-            const renderedKick = await kickOffline.startRendering();
-            const kickData = renderedKick.getChannelData(0);
+            // 1. 하이패스 필터: 드럼 킥, 베이스 같은 저음역대 제거 (300Hz 이하)
+            const hp = offlineCtx.createBiquadFilter();
+            hp.type = 'highpass';
+            hp.frequency.value = 300;
+            hp.Q.value = 1;
 
-            const step = Math.floor(sampleRate / 60); 
+            // 2. 로우패스 필터: 하이햇, 전자음 같은 고음역대 노이즈 제거 (3400Hz 이상)
+            const lp = offlineCtx.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.value = 3400;
+            lp.Q.value = 1;
+
+            source.connect(hp);
+            hp.connect(lp);
+            lp.connect(offlineCtx.destination);
+            source.start(0);
+
+            // 필터링된 오디오 데이터 렌더링
+            const renderedBuffer = await offlineCtx.startRendering();
+            const rawData = renderedBuffer.getChannelData(0);
+            const sampleRate = renderedBuffer.sampleRate;
+            const step = Math.floor(sampleRate / 45); // 분석 정밀도
+
             gameData.notes = [];
-            
-            let lastVocalTime = -1;
-            let lastKickTime = -1;
-            
-            // 레인 점유 상태 추적 (롱노트와 일반 노트가 겹치지 않게 함)
-            let laneOccupiedUntil = [0, 0, 0, 0];
+            let inBeat = false;
+            let beatStartTime = 0;
+            let currentLane = 0;
 
-            let patternState = {
-                type: 'random',
-                count: 0,
-                dir: 1,
-                lastLane: 0
-            };
+            // 보컬의 특징에 맞춘 문턱값 및 간격 조절
+            const threshold = 0.12;
+            const minNoteGap = 0.18; // 목소리의 빠른 음절을 따라가기 위해 기존보다 줄임
+            let lastNoteTime = -minNoteGap;
 
-            function getNextAvailableLane(time, forceType) {
-                if (forceType) patternState.type = forceType;
-                
-                let attempts = 0;
-                let candidateLane = patternState.lastLane;
-
-                while (attempts < 8) {
-                    if (patternState.type === 'stair') {
-                        candidateLane = (patternState.lastLane + patternState.dir + 4) % 4;
-                    } else if (patternState.type === 'trill') {
-                        let base = patternState.lastLane < 2 ? 0 : 2;
-                        candidateLane = (patternState.lastLane % 2 === 0) ? base + 1 : base;
-                    } else {
-                        candidateLane = Math.floor(Math.random() * 4);
-                    }
-
-                    // 해당 레인이 비어있는지 확인
-                    if (laneOccupiedUntil[candidateLane] <= time) {
-                        patternState.lastLane = candidateLane;
-                        break;
-                    }
-                    
-                    // 레인이 차있으면 랜덤으로 시도
-                    patternState.type = 'random';
-                    attempts++;
+            for (let i = 0; i < rawData.length; i += step) {
+                let sum = 0;
+                let length = Math.min(step, rawData.length - i);
+                for (let j = 0; j < length; j++) {
+                    sum += rawData[i + j] * rawData[i + j];
                 }
-                
-                patternState.count--;
-                if (patternState.count <= 0) {
-                    const rand = Math.random();
-                    if (rand < 0.3) { patternState.type = 'stair'; patternState.count = 4; }
-                    else if (rand < 0.6) { patternState.type = 'trill'; patternState.count = 4; }
-                    else { patternState.type = 'random'; patternState.count = 2; }
-                }
-                return candidateLane;
-            }
+                let rms = Math.sqrt(sum / length);
+                let currentTime = i / sampleRate;
 
-            // 난이도별 채보 생성 파라미터 설정
-            const isEasy = gameData.difficulty === 'easy';
-            const kThresh = isEasy ? 0.28 : 0.22;   // 이지는 더 큰 소리에만 반응
-            const vThresh = isEasy ? 0.15 : 0.10;   // 이지는 더 뚜렷한 보컬에만 반응
-            const minKGap = isEasy ? 0.6 : 0.4;     // 이지는 노트 간격이 긺
-            const minVGap = isEasy ? 0.5 : 0.3;
-            const bProb = isEasy ? 0 : 0.1;         // 이지는 연타(쪼개기) 없음
-
-            for (let i = 0; i < vocalData.length; i += step) {
-                const currentTime = i / sampleRate;
-                const hitTime = currentTime + 2.0;
-
-                // 활성 손가락 개수 확인 (현재 누르고 있는 롱노트 수)
-                let activeHolds = laneOccupiedUntil.filter(t => t > currentTime).length;
-                let fingerCapacity = Math.max(0, 2 - activeHolds);
-                
-                let notesAddedAtThisTime = 0; 
-
-                // 킥 분석 (강한 비트 -> 단타)
-                let kSum = 0;
-                for (let j = 0; j < step && i + j < kickData.length; j++) kSum += kickData[i + j] * kickData[i + j];
-                let kRms = Math.sqrt(kSum / step);
-                
-                if (kRms > kThresh && currentTime - lastKickTime > minKGap && notesAddedAtThisTime < fingerCapacity) {
-                    let lane = getNextAvailableLane(currentTime);
-                    if (laneOccupiedUntil[lane] <= currentTime) {
-                        gameData.notes.push({ type: 'normal', lane: lane, hitTime: hitTime, active: true, pressed: false });
-                        notesAddedAtThisTime++;
-                        
-                        // 하드 모드에서만 아주 강한 비트에 동시치기
-                        if (!isEasy && kRms > 0.35 && notesAddedAtThisTime < fingerCapacity) {
-                            let secondLane = (lane + 2) % 4;
-                            if (laneOccupiedUntil[secondLane] <= currentTime) {
-                                gameData.notes.push({ type: 'normal', lane: secondLane, hitTime: hitTime, active: true, pressed: false });
-                                notesAddedAtThisTime++;
-                            }
-                        }
-                        lastKickTime = currentTime;
+                if (rms > threshold) {
+                    // 필터링된 영역에서 소리가 커졌을 때 (목소리가 나올 때)
+                    if (!inBeat && (currentTime - lastNoteTime > minNoteGap)) {
+                        inBeat = true;
+                        beatStartTime = currentTime;
+                        currentLane = Math.floor(Math.random() * 4);
                     }
-                }
+                } else {
+                    if (inBeat) {
+                        inBeat = false;
+                        let duration = currentTime - beatStartTime;
+                        let hitTime = beatStartTime + 2.0; // 판정선까지 도달 시간 보정
 
-                // 보컬 분석 (멜로디 -> 롱노트 혹은 연타)
-                let vSum = 0;
-                for (let j = 0; j < step && i + j < vocalData.length; j++) vSum += vocalData[i + j] * vocalData[i + j];
-                let vRms = Math.sqrt(vSum / step);
-
-                if (vRms > vThresh && currentTime - lastVocalTime > minVGap && notesAddedAtThisTime < fingerCapacity) {
-                    // 연타(쪼개기)
-                    if (Math.random() < bProb) {
-                        for(let burst = 0; burst < 2; burst++) {
-                            let bHitTime = hitTime + (burst * 0.15);
-                            let bLane = getNextAvailableLane(currentTime + (burst * 0.15), Math.random() < 0.5 ? 'stair' : 'trill');
-                            let bActiveHolds = laneOccupiedUntil.filter(t => t > (currentTime + burst * 0.15)).length;
-                            if (bActiveHolds < 2 && laneOccupiedUntil[bLane] <= currentTime + (burst * 0.15)) {
-                                gameData.notes.push({
-                                    type: 'normal', lane: bLane, hitTime: bHitTime,
-                                    active: true, pressed: false
-                                });
-                            }
-                        }
-                        lastVocalTime = currentTime + 0.5;
-                    } else {
-                        // 일반 롱노트
-                        let lane = getNextAvailableLane(currentTime);
-                        if (laneOccupiedUntil[lane] <= currentTime) {
-                            let duration = 0.5;
+                        // 0.3초 이상 끌리는 소리는 롱노트로 생성 (노래의 바이브레이션이나 긴 발음 처리)
+                        if (duration > 0.3) {
                             gameData.notes.push({
-                                type: 'long', lane: lane, hitTime: hitTime,
+                                type: 'long', lane: currentLane, hitTime: hitTime,
                                 duration: duration, active: true, pressed: false,
-                                heldDuration: 0, wasHit: false
+                                pressedDuration: 0 // 누르고 있는 시간 추적
                             });
-                            laneOccupiedUntil[lane] = currentTime + duration + 0.15;
-                            lastVocalTime = currentTime + 0.6;
+                        } else {
+                            gameData.notes.push({
+                                type: 'normal', lane: currentLane, hitTime: hitTime,
+                                active: true, pressed: false
+                            });
                         }
+                        lastNoteTime = currentTime;
                     }
                 }
             }
 
-            statusText.innerText = `분석 완료! ${isEasy ? '이지' : '하드'} 모드 채보가 생성되었습니다.`;
+            statusText.innerText = "보컬 분석 완료! 게임을 시작합니다.";
             drawWaveform(buffer);
             startGame(buffer);
         }
@@ -646,13 +564,11 @@
 
             // 난이도에 따른 세팅
             if (gameData.difficulty === 'easy') {
-                gameData.speed = 400;       // 입문자용 느린 속도
-                gameData.hitWindow = 0.15;
-                gameData.greatWindow = 0.30;
+                gameData.speed = 300;
+                gameData.hitWindow = 0.25;
             } else {
-                gameData.speed = 600;       // 기존 이지 수준의 속도
+                gameData.speed = 550;
                 gameData.hitWindow = 0.12;
-                gameData.greatWindow = 0.25;
             }
 
             // 몽환적인 배경용 은하수 별 생성
@@ -888,65 +804,66 @@
                             updateStats();
                         }
                     } else {
-                        let drawBottomY = bottomY;
                         let isBeingHit = false;
+
+                        // 롱노트 유지 조건: 정확히 시작(wasHit)되었고, 키가 계속 눌려있어야 함
+                        if (note.wasHit && keys[note.lane] && bottomY >= gameData.hitLineY && topY <= gameData.hitLineY) {
+                            isBeingHit = true;
+                            gameData.score += 1;
+
+                            // 롱노트 유지 중 진동 (약 50ms 간격으로 진동 유지)
+                            if (navigator.vibrate) {
+                                if (!note._lastVibrateTime || currentTime - note._lastVibrateTime > 0.05) {
+                                    navigator.vibrate(100);
+                                    note._lastVibrateTime = currentTime;
+                                }
+                            }
+
+                            // 누르고 있는 시간 누적 (프레임 단위로 근사치 계산, 실제로는 deltaTime 사용이 정확하지만 여기선 루프가 일정하다고 가정)
+                            if (!note._lastHoldTime) note._lastHoldTime = currentTime;
+                            let holdDelta = currentTime - note._lastHoldTime;
+                            if (holdDelta > 0) note.pressedDuration += holdDelta;
+                            note._lastHoldTime = currentTime;
+
+                            if (Math.random() > 0.3) {
+                                // 진행률 (0~1)
+                                let holdProgress = Math.min(1.0, note.pressedDuration / note.duration);
+                                // 터지는 별이 점점 더 커지도록 (기본 3~5 -> 최대 15~25)
+                                let baseRadius = 3 + holdProgress * 15;
+
+                                gameData.particles.push({
+                                    x: note.lane * gameData.laneWidth + gameData.laneWidth / 2 + (Math.random() - 0.5) * 40,
+                                    y: gameData.hitLineY,
+                                    vx: (Math.random() - 0.5) * (4 + holdProgress * 10),
+                                    vy: Math.random() * -3 - 1 - holdProgress * 10,
+                                    radius: Math.random() * (baseRadius / 2) + baseRadius,
+                                    alpha: 1,
+                                    decay: 0.02,
+                                    color: laneColors[note.lane],
+                                    rotation: Math.random() * Math.PI * 2,
+                                    rotSpeed: (Math.random() - 0.5) * 0.4
+                                });
+                            }
+                        } else {
+                            note._lastHoldTime = currentTime; // 떼었을 때 초기화해서 다시 누를 때 점프 방지
+                        }
+
+                        let drawBottomY = bottomY;
 
                         // 한 번이라도 터치된 롱노트라면 판정선을 넘은 부분을 잘라냅니다 (먹구름처럼 사라짐 효과)
                         if (note.wasHit && bottomY > gameData.hitLineY) {
-                            if (keys[note.lane]) {
-                                // RhythmEasy 스타일의 시간 기반 heldDuration 누적
-                                if (!note._lastHoldTime) note._lastHoldTime = currentTime;
-                                let holdDelta = currentTime - note._lastHoldTime;
-                                if (holdDelta > 0) note.heldDuration += holdDelta;
-                                note._lastHoldTime = currentTime;
-
-                                // RhythmEasy 스타일의 지속 진동 (약 50ms 간격으로 100ms 진동 유지)
-                                if (navigator.vibrate) {
-                                    if (!note._lastVibrateTime || currentTime - note._lastVibrateTime > 0.05) {
-                                        navigator.vibrate(100);
-                                        note._lastVibrateTime = currentTime;
-                                    }
-                                }
-                            } else {
-                                note._lastHoldTime = currentTime;
-                            }
-
                             drawBottomY = gameData.hitLineY;
 
-                            if (keys[note.lane] && bottomY >= gameData.hitLineY && topY <= gameData.hitLineY) {
-                                isBeingHit = true;
-                                let scoreGain = Math.floor(2 + note.heldDuration * 20);
-                                gameData.score += scoreGain;
-                                scoreBoard.innerText = `SCORE: ${gameData.score}`; 
-
-                                if (Math.random() > 0.3) {
-                                    // 별 크기 하향 조정 (RhythmEasy 참고하여 적정 수준으로)
-                                    let holdProgress = Math.min(1.0, note.heldDuration / note.duration);
-                                    let baseRadius = 4 + holdProgress * 12;
-
-                                    gameData.particles.push({
-                                        x: note.lane * gameData.laneWidth + gameData.laneWidth / 2 + (Math.random() - 0.5) * 50,
-                                        y: gameData.hitLineY,
-                                        vx: (Math.random() - 0.5) * (6 + holdProgress * 8),
-                                        vy: Math.random() * -4 - 1 - holdProgress * 8,
-                                        radius: Math.random() * (baseRadius / 2) + baseRadius,
-                                        alpha: 1,
-                                        decay: 0.015,
-                                        color: laneColors[note.lane],
-                                        rotation: Math.random() * Math.PI * 2,
-                                        rotSpeed: (Math.random() - 0.5) * 0.8
-                                    });
-                                }
-                            }
-
-                            // 롱노트가 끝까지 다 들어갔을 때 70% 이상 유지 확인 후 폭죽 연출
+                            // 롱노트가 끝까지 다 들어갔을 때
                             if (topY >= gameData.hitLineY && !note.finishedBurst) {
                                 note.finishedBurst = true;
-                                if (note.heldDuration >= note.duration * 0.7) {
+
+                                // 70% 이상 눌렀을 때만 성공으로 평가
+                                if (note.pressedDuration / note.duration >= 0.7) {
                                     gameData.successCount++;
-                                    updateStats();
                                     gameData.score += 50;
-                                    scoreBoard.innerText = `SCORE: ${gameData.score}`;
+                                    showJudgment("PERFECT");
+
                                     let hitX = note.lane * gameData.laneWidth + gameData.laneWidth / 2;
                                     for (let pNum = 0; pNum < 50; pNum++) {
                                         gameData.particles.push({
@@ -962,10 +879,13 @@
                                             rotSpeed: (Math.random() - 0.5) * 0.8
                                         });
                                     }
-                                    if (navigator.vibrate) navigator.vibrate(150);
                                 } else {
-                                    handleMiss(); // 70% 미만이면 실패 처리
+                                    gameData.failCount++;
+                                    gameData.combo = 0;
+                                    showJudgment("MISS");
                                 }
+                                updateStats();
+                                scoreBoard.innerText = `SCORE: ${gameData.score}`;
                             }
                         }
 
@@ -1029,7 +949,7 @@
         function checkHit(laneIndex) {
             if (!gameData.isPlaying) return;
 
-            // 터치 시 즉각적인 진동 피드백 (RhythmEasy 스타일)
+            // 모바일 바이브레이션 (성공 여부와 상관없이 누름 자체에 반응)
             if (navigator.vibrate) navigator.vibrate(30);
 
             let currentTime = audioCtx.currentTime - gameData.startTime + 2.0;
@@ -1086,7 +1006,6 @@
             scoreBoard.innerText = `SCORE: ${gameData.score}`;
             showJudgment(type);
             updateStats();
-            if (navigator.vibrate) navigator.vibrate(50);
 
             // 파티클 연출
             let hitX = laneIndex * gameData.laneWidth + gameData.laneWidth / 2;
@@ -1124,17 +1043,15 @@
 
         // 입력 처리 (키보드)
         document.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
-            if (keyMap[key] !== undefined && !keys[keyMap[key]]) {
-                keys[keyMap[key]] = true;
-                checkHit(keyMap[key]);
+            const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3, 'D': 0, 'F': 1, 'J': 2, 'K': 3 };
+            if (keyMap[e.key] !== undefined && !keys[keyMap[e.key]]) {
+                keys[keyMap[e.key]] = true;
+                checkHit(keyMap[e.key]);
             }
         });
         document.addEventListener('keyup', (e) => {
-            const key = e.key.toLowerCase();
-            const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
-            if (keyMap[key] !== undefined) keys[keyMap[key]] = false;
+            const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3, 'D': 0, 'F': 1, 'J': 2, 'K': 3 };
+            if (keyMap[e.key] !== undefined) keys[keyMap[e.key]] = false;
         });
 
         // 입력 처리 (모바일 터치)
@@ -1173,6 +1090,7 @@
         });
 
     </script>
+
 </body>
 
 </html>

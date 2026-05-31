@@ -1,67 +1,83 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MP3 분석 리듬게임 (HELL)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
+        @font-face {
+            font-family: 'NanumSquareNeo';
+            src: url('./fonts/NanumSquareNeo-Regular.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'NanumSquareNeo';
+            src: url('./fonts/NanumSquareNeo-Bold.woff2') format('woff2');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'NanumSquareNeo';
+            src: url('./fonts/NanumSquareNeo-ExtraBold.woff2') format('woff2');
+            font-weight: 800;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'NanumSquareNeo';
+            src: url('./fonts/NanumSquareNeo-Heavy.woff2') format('woff2');
+            font-weight: 900;
+            font-style: normal;
+        }
+
         body {
             background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1a 100%);
             color: #fff;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'NanumSquareNeo', 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
-            padding: 0;
+            padding: 0 10px;
+            /* 아주 좁은 화면 양옆 여백 */
             box-sizing: border-box;
             overflow: hidden;
-            /* 💡 치트키: 화면 밀림 및 롱터치 컨텍스트 메뉴 차단 */
             touch-action: none;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        /* 💡 반응형 구조: 스마트폰 전체 화면 높이에 부드럽게 맞춤 */
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            width: 100vw;
-            height: 100vh;
-            padding: 15px 10px;
-            box-sizing: border-box;
         }
 
         h1 {
-            margin: 0;
+            margin: 10PX 0 20px 0;
             color: #00e5ff;
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(20px, 6vw, 30px);
+            font-size: clamp(20px, 6.2vw, 32px);
+            /* 화면 폭에 맞춰 크기 자동 조절 */
             font-weight: 900;
             text-transform: uppercase;
-            text-shadow: 0 0 10px #00e5ff;
+            text-shadow: 0 0 10px #00e5ff, 0 0 20px #00e5ff, 0 0 40px #00e5ff;
             text-align: center;
+            white-space: nowrap;
+            /* 무조건 한 줄로 유지 */
         }
 
-        /* 💡 반응형 세로 레이아웃: 화면 크기에 맞춰 게임 영역이 자동으로 최적화됨 */
         .game-wrapper {
             position: relative;
-            background-color: #05050a;
+            background-color: transparent;
             border: 2px solid rgba(0, 229, 255, 0.4);
-            border-radius: 12px;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.2), inset 0 0 20px rgba(0, 229, 255, 0.1);
             width: 100%;
-            max-width: 420px; /* PC나 태블릿에서도 보기 좋게 최대 너비 고정 */
-            flex: 1; /* 가용 공간을 채워 세로로 길어짐 */
-            margin: 10px 0;
+            max-width: 400px;
+            height: 70vh;
+            max-height: 550px;
             overflow: hidden;
         }
 
@@ -69,7 +85,6 @@
             display: block;
             width: 100%;
             height: 100%;
-            background-color: transparent;
         }
 
         .overlay {
@@ -78,7 +93,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(7, 7, 15, 0.95);
+            background: rgba(0, 0, 0, 0.85);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -91,9 +106,9 @@
 
         .overlay h2 {
             color: #00e5ff;
-            margin: 0 0 20px 0;
+            margin-bottom: 20px;
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(22px, 6vw, 32px);
+            font-weight: 700;
             text-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
         }
 
@@ -109,10 +124,10 @@
             color: #ffffff;
             background: linear-gradient(45deg, rgba(0, 229, 255, 0.2) 0%, rgba(0, 229, 255, 0.5) 100%);
             padding: 15px 30px;
-            font-size: 15px;
-            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-family: 'Orbitron', 'NanumSquareNeo', sans-serif;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -123,6 +138,7 @@
         .btn:hover {
             background: linear-gradient(45deg, rgba(0, 229, 255, 0.5) 0%, rgba(0, 229, 255, 0.8) 100%);
             box-shadow: 0 0 25px rgba(0, 229, 255, 0.8);
+            transform: scale(1.05);
         }
 
         .upload-btn-wrapper input[type=file] {
@@ -133,7 +149,6 @@
             opacity: 0;
             cursor: pointer;
             height: 100%;
-            width: 100%;
         }
 
         #status-text {
@@ -145,62 +160,67 @@
 
         .hud-container {
             width: 100%;
-            max-width: 420px;
+            max-width: 400px;
+            margin-top: 15px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .hud-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(0, 229, 255, 0.2);
-            border-radius: 6px;
-            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 8px clamp(4px, 2.5vw, 12px);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+            gap: 4px;
         }
 
-        #score-board, #stats-board {
+        #score-board {
             font-family: 'Orbitron', sans-serif;
-            font-size: clamp(13px, 3.8vw, 16px);
+            font-size: clamp(14px, 4vw, 18px);
             font-weight: 700;
+            color: #ffaa00;
+            text-shadow: 0 0 10px rgba(255, 170, 0, 0.6);
+            margin: 0;
             white-space: nowrap;
         }
 
-        #score-board { color: #ffaa00; text-shadow: 0 0 10px rgba(255, 170, 0, 0.6); }
-        #stats-board { color: #00ffaa; text-shadow: 0 0 5px rgba(0, 255, 170, 0.5); }
-
-        #quit-btn {
-            background: linear-gradient(45deg, rgba(255, 0, 85, 0.3) 0%, rgba(255, 0, 85, 0.6) 100%);
-            color: #fff;
-            border: 1px solid #ff0055;
-            padding: 10px;
-            font-size: 14px;
+        #stats-board {
             font-family: 'Orbitron', sans-serif;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            letter-spacing: 1px;
+            font-size: clamp(11.5px, 3.2vw, 14.5px);
+            font-weight: 700;
+            color: #00ffaa;
+            text-shadow: 0 0 5px rgba(0, 255, 170, 0.5);
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .controls {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #aaa;
+            text-align: center;
         }
 
         .key {
             display: inline-block;
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid #555;
-            padding: 2px 6px;
+            padding: 4px 10px;
             border-radius: 4px;
+            color: #fff;
+            margin: 0 5px;
             font-family: 'Orbitron', sans-serif;
         }
 
         .difficulty-selector {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 280px;
+            margin-bottom: 25px;
         }
 
         .diff-btn {
@@ -213,21 +233,48 @@
             font-family: 'Orbitron', sans-serif;
             font-size: 14px;
             border-radius: 4px;
+            transition: all 0.2s;
         }
 
         .diff-btn.active {
             border-color: #00e5ff;
             background: rgba(0, 229, 255, 0.2);
             color: #00e5ff;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
         }
 
+        #quit-btn {
+            display: none;
+            width: 100%;
+            background: linear-gradient(45deg, rgba(255, 0, 85, 0.2) 0%, rgba(255, 0, 85, 0.5) 100%);
+            color: #fff;
+            border: 1px solid #ff0055;
+            padding: 12px;
+            font-size: 16px;
+            font-family: 'Orbitron', 'NanumSquareNeo', sans-serif;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+        }
+
+        #quit-btn:hover {
+            background: linear-gradient(45deg, rgba(255, 0, 85, 0.5) 0%, rgba(255, 0, 85, 0.8) 100%);
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.8);
+        }
+
+        /* 프로그레스 바 스타일 */
         .progress-container {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 25px;
-            background: rgba(255, 255, 255, 0.03);
+            height: 30px;
+            /* 파형이 보일 수 있도록 높이 조절 */
+            background: rgba(255, 255, 255, 0.05);
             z-index: 5;
             overflow: hidden;
             border-bottom: 1px solid rgba(0, 229, 255, 0.1);
@@ -239,7 +286,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0.3;
+            opacity: 0.5;
         }
 
         #progress-bar {
@@ -248,8 +295,9 @@
             left: 0;
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, rgba(0, 229, 255, 0.4), rgba(0, 255, 170, 0.4));
+            background: linear-gradient(90deg, rgba(0, 229, 255, 0.3), rgba(0, 255, 170, 0.3));
             border-right: 2px solid #00e5ff;
+            box-shadow: 0 0 10px #00e5ff;
             z-index: 2;
         }
     </style>
@@ -257,43 +305,47 @@
 
 <body>
 
-    <div class="main-container">
-        <h1>RHYTHM GAME</h1>
+    <h1>RHYTHM GAME</h1>
 
-        <div class="game-wrapper">
-            <div class="progress-container">
-                <canvas id="waveform-canvas"></canvas>
-                <div id="progress-bar"></div>
-            </div>
-            <canvas id="game"></canvas>
-
-            <div id="start-screen" class="overlay">
-                <h2>RHYTHM GAME</h2>
-                <div class="difficulty-selector">
-                    <button class="diff-btn active" data-diff="easy">EASY</button>
-                    <button class="diff-btn" data-diff="hard">HARD</button>
-                </div>
-                <p id="mode-desc" style="font-size: 13px; color: #ccc; margin-bottom: 20px; line-height: 1.6; padding: 0 10px;">
-                    기초부터 차근차근! 입문자용 모드입니다.<br><br>
-                    PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span class="key">K</span><br>
-                    모바일: 양손으로 쥐고 하단 판정 영역을 터치하세요!
-                </p>
-                <div class="upload-btn-wrapper">
-                    <button class="btn">MP3 파일 선택</button>
-                    <input type="file" id="audio-upload" accept="audio/mpeg, audio/mp3, audio/wav" />
-                </div>
-                <div id="status-text"></div>
-            </div>
+    <div class="game-wrapper">
+        <div class="progress-container">
+            <canvas id="waveform-canvas"></canvas>
+            <div id="progress-bar"></div>
         </div>
+        <canvas id="game" width="400" height="600"></canvas>
 
-        <div class="hud-container">
-            <div class="hud-row">
-                <div id="stats-board">RATE: 0%</div>
-                <div id="score-board">SCORE: 0</div>
+        <div id="start-screen" class="overlay">
+            <h2>RHYTHM GAME</h2>
+            <div class="difficulty-selector">
+                <button class="diff-btn active" data-diff="easy">EASY</button>
+                <button class="diff-btn" data-diff="hard">HARD</button>
             </div>
-            <button id="quit-btn" style="display: none;">EMERGENCY EXIT</button>
+            <p id="mode-desc" style="font-size: 14px; color: #ccc; margin-bottom: 20px;">
+                기초부터 차근차근! 느린 속도와 여유로운 박자의 입문자용 모드입니다.<br><br>
+                PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span
+                    class="key">K</span><br><br>
+                모바일: 화면의 각 레인을 터치하세요!
+            </p>
+            <div class="upload-btn-wrapper">
+                <button class="btn">MP3 파일 선택</button>
+                <input type="file" id="audio-upload" accept="audio/mpeg, audio/mp3, audio/wav" />
+            </div>
+            <div id="status-text"></div>
         </div>
     </div>
+
+    <div class="hud-container">
+        <div class="hud-row">
+            <div id="stats-board">RATE: 0%</div>
+            <div id="score-board">SCORE: 0</div>
+        </div>
+        <button id="quit-btn">EMERGENCY EXIT</button>
+    </div>
+
+    <footer
+        style="margin-top: 20px; font-size: clamp(13px, 3.8vw, 18px); font-weight: 800; color: #00e5ff; text-shadow: 0 0 8px rgba(0, 229, 255, 0.4); font-family: 'Orbitron', 'NanumSquareNeo', sans-serif; text-align: center; letter-spacing: 1px; white-space: nowrap;">
+        &copy; 해봄에듀 All Rights Reserved.
+    </footer>
 
     <script>
         const canvas = document.getElementById('game');
@@ -308,7 +360,6 @@
         const waveformCanvas = document.getElementById('waveform-canvas');
         const waveCtx = waveformCanvas.getContext('2d');
 
-        // 세로형 논리 해상도 고정
         canvas.width = 400;
         canvas.height = 600;
 
@@ -319,9 +370,9 @@
             score: 0,
             isPlaying: false,
             startTime: 0,
-            speed: 400,
-            hitLineY: 520, // 하단 판정선 위치 (양손 엄지가 닿기 딱 좋은 곳)
-            laneWidth: 100, // 400 / 4 레인 너비
+            speed: 300,
+            hitLineY: 500,
+            laneWidth: 100, // canvas.width / 4
             particles: [],
             successCount: 0,
             failCount: 0,
@@ -337,6 +388,7 @@
             lastVibrateTime: 0
         };
 
+        // 난이도 선택 로직
         const diffBtns = document.querySelectorAll('.diff-btn');
         const modeDesc = document.getElementById('mode-desc');
         diffBtns.forEach(btn => {
@@ -345,16 +397,16 @@
                 btn.classList.add('active');
                 gameData.difficulty = btn.dataset.diff;
                 if (gameData.difficulty === 'easy') {
-                    modeDesc.innerHTML = '기초부터 차근차근! 입문자용 모드입니다.<br><br>PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span class="key">K</span><br>모바일: 양손으로 쥐고 하단 판정 영역을 터치하세요!';
+                    modeDesc.innerHTML = '기초부터 차근차근! 느린 속도와 여유로운 박자의 입문자용 모드입니다.<br><br>PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span class="key">K</span><br><br>모바일: 화면의 각 레인을 터치하세요!';
                 } else {
-                    modeDesc.innerHTML = '빠른 박자와 높은 난이도! 숙련자용 모드입니다.<br><br>PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span class="key">K</span><br>모바일: 양손으로 쥐고 하단 판정 영역을 터치하세요!';
+                    modeDesc.innerHTML = '도전적인 박자와 빠른 속도! 리듬 게임 숙련자를 위한 하드 모드입니다.<br><br>PC: <span class="key">D</span><span class="key">F</span><span class="key">J</span><span class="key">K</span><br><br>모바일: 화면의 각 레인을 터치하세요!';
                 }
             });
         });
 
         function updateStats() {
             let total = gameData.successCount + gameData.failCount;
-            let rate = total === 0 ? 0 : Math.round((gameData.successCount / total) * 100);
+            let rate = total === 0 ? 0 : Math.round((gameData.successCount / (gameData.successCount + gameData.failCount)) * 100);
             statsBoard.innerText = `RATE: ${rate}% | COMBO: ${gameData.combo}`;
         }
 
@@ -370,26 +422,29 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            statusText.innerText = "음원 디코딩 및 음악 분석 중...";
+            statusText.innerText = "음원 디코딩 및 분석 중... 잠시만 기다려주세요!";
 
             const reader = new FileReader();
             reader.onload = function (ev) {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
                 audioCtx.decodeAudioData(ev.target.result, async function (buffer) {
-                    statusText.innerText = "리듬 비트 추출 중... 잠시만 기다려주세요!";
+                    statusText.innerText = "보컬(목소리) 추출 및 리듬 분석 중... 잠시만 기다려주세요!";
                     await analyzeVocalAndGenerateNotes(buffer);
                 }, function (err) {
-                    statusText.innerText = "오디오 오류: " + err;
+                    statusText.innerText = "오디오 디코딩 에러: " + err;
                 });
             };
             reader.readAsArrayBuffer(file);
+
+            // 동일한 파일을 다시 선택하더라도 change 이벤트가 발생할 수 있도록 파일 값을 초기화합니다.
             e.target.value = '';
         });
 
         async function analyzeVocalAndGenerateNotes(buffer) {
             const sampleRate = buffer.sampleRate;
             
+            // 1. 보컬/멜로디 분석
             const vocalOffline = new OfflineAudioContext(buffer.numberOfChannels, buffer.length, sampleRate);
             const vocalSource = vocalOffline.createBufferSource();
             vocalSource.buffer = buffer;
@@ -402,6 +457,7 @@
             const renderedVocal = await vocalOffline.startRendering();
             const vocalData = renderedVocal.getChannelData(0);
 
+            // 2. 킥/베이스 분석
             const kickOffline = new OfflineAudioContext(buffer.numberOfChannels, buffer.length, sampleRate);
             const kickSource = kickOffline.createBufferSource();
             kickSource.buffer = buffer;
@@ -414,66 +470,136 @@
 
             const step = Math.floor(sampleRate / 60); 
             gameData.notes = [];
+            
             let lastVocalTime = -1;
             let lastKickTime = -1;
+            
+            // 레인 점유 상태 추적 (롱노트와 일반 노트가 겹치지 않게 함)
             let laneOccupiedUntil = [0, 0, 0, 0];
 
-            function getNextAvailableLane(time) {
-                let lane = Math.floor(Math.random() * 4);
+            let patternState = {
+                type: 'random',
+                count: 0,
+                dir: 1,
+                lastLane: 0
+            };
+
+            function getNextAvailableLane(time, forceType) {
+                if (forceType) patternState.type = forceType;
+                
                 let attempts = 0;
-                while (laneOccupiedUntil[lane] > time && attempts < 5) {
-                    lane = Math.floor(Math.random() * 4);
+                let candidateLane = patternState.lastLane;
+
+                while (attempts < 8) {
+                    if (patternState.type === 'stair') {
+                        candidateLane = (patternState.lastLane + patternState.dir + 4) % 4;
+                    } else if (patternState.type === 'trill') {
+                        let base = patternState.lastLane < 2 ? 0 : 2;
+                        candidateLane = (patternState.lastLane % 2 === 0) ? base + 1 : base;
+                    } else {
+                        candidateLane = Math.floor(Math.random() * 4);
+                    }
+
+                    // 해당 레인이 비어있는지 확인
+                    if (laneOccupiedUntil[candidateLane] <= time) {
+                        patternState.lastLane = candidateLane;
+                        break;
+                    }
+                    
+                    // 레인이 차있으면 랜덤으로 시도
+                    patternState.type = 'random';
                     attempts++;
                 }
-                return lane;
+                
+                patternState.count--;
+                if (patternState.count <= 0) {
+                    const rand = Math.random();
+                    if (rand < 0.3) { patternState.type = 'stair'; patternState.count = 4; }
+                    else if (rand < 0.6) { patternState.type = 'trill'; patternState.count = 4; }
+                    else { patternState.type = 'random'; patternState.count = 2; }
+                }
+                return candidateLane;
             }
 
+            // 난이도별 채보 생성 파라미터 설정
             const isEasy = gameData.difficulty === 'easy';
-            const kThresh = isEasy ? 0.28 : 0.22;
-            const vThresh = isEasy ? 0.16 : 0.10;
-            const minKGap = isEasy ? 0.5 : 0.3;
-            const minVGap = isEasy ? 0.6 : 0.4;
+            const kThresh = isEasy ? 0.28 : 0.22;   // 이지는 더 큰 소리에만 반응
+            const vThresh = isEasy ? 0.15 : 0.10;   // 이지는 더 뚜렷한 보컬에만 반응
+            const minKGap = isEasy ? 0.6 : 0.4;     // 이지는 노트 간격이 긺
+            const minVGap = isEasy ? 0.5 : 0.3;
+            const bProb = isEasy ? 0 : 0.1;         // 이지는 연타(쪼개기) 없음
 
             for (let i = 0; i < vocalData.length; i += step) {
                 const currentTime = i / sampleRate;
                 const hitTime = currentTime + 2.0;
 
+                // 활성 손가락 개수 확인 (현재 누르고 있는 롱노트 수)
                 let activeHolds = laneOccupiedUntil.filter(t => t > currentTime).length;
                 let fingerCapacity = Math.max(0, 2 - activeHolds);
-                let notesAdded = 0;
+                
+                let notesAddedAtThisTime = 0; 
 
+                // 킥 분석 (강한 비트 -> 단타)
                 let kSum = 0;
                 for (let j = 0; j < step && i + j < kickData.length; j++) kSum += kickData[i + j] * kickData[i + j];
                 let kRms = Math.sqrt(kSum / step);
                 
-                if (kRms > kThresh && currentTime - lastKickTime > minKGap && notesAdded < fingerCapacity) {
+                if (kRms > kThresh && currentTime - lastKickTime > minKGap && notesAddedAtThisTime < fingerCapacity) {
                     let lane = getNextAvailableLane(currentTime);
                     if (laneOccupiedUntil[lane] <= currentTime) {
-                        gameData.notes.push({ type: 'normal', lane: lane, hitTime: hitTime, active: true });
-                        notesAdded++;
+                        gameData.notes.push({ type: 'normal', lane: lane, hitTime: hitTime, active: true, pressed: false });
+                        notesAddedAtThisTime++;
+                        
+                        // 하드 모드에서만 아주 강한 비트에 동시치기
+                        if (!isEasy && kRms > 0.35 && notesAddedAtThisTime < fingerCapacity) {
+                            let secondLane = (lane + 2) % 4;
+                            if (laneOccupiedUntil[secondLane] <= currentTime) {
+                                gameData.notes.push({ type: 'normal', lane: secondLane, hitTime: hitTime, active: true, pressed: false });
+                                notesAddedAtThisTime++;
+                            }
+                        }
                         lastKickTime = currentTime;
                     }
                 }
 
+                // 보컬 분석 (멜로디 -> 롱노트 혹은 연타)
                 let vSum = 0;
                 for (let j = 0; j < step && i + j < vocalData.length; j++) vSum += vocalData[i + j] * vocalData[i + j];
                 let vRms = Math.sqrt(vSum / step);
 
-                if (vRms > vThresh && currentTime - lastVocalTime > minVGap && notesAdded < fingerCapacity) {
-                    let lane = getNextAvailableLane(currentTime);
-                    if (laneOccupiedUntil[lane] <= currentTime) {
-                        let duration = isEasy ? 0.4 : 0.6;
-                        gameData.notes.push({
-                            type: 'long', lane: lane, hitTime: hitTime,
-                            duration: duration, active: true, wasHit: false, heldDuration: 0
-                        });
-                        laneOccupiedUntil[lane] = currentTime + duration + 0.1;
-                        lastVocalTime = currentTime;
+                if (vRms > vThresh && currentTime - lastVocalTime > minVGap && notesAddedAtThisTime < fingerCapacity) {
+                    // 연타(쪼개기)
+                    if (Math.random() < bProb) {
+                        for(let burst = 0; burst < 2; burst++) {
+                            let bHitTime = hitTime + (burst * 0.15);
+                            let bLane = getNextAvailableLane(currentTime + (burst * 0.15), Math.random() < 0.5 ? 'stair' : 'trill');
+                            let bActiveHolds = laneOccupiedUntil.filter(t => t > (currentTime + burst * 0.15)).length;
+                            if (bActiveHolds < 2 && laneOccupiedUntil[bLane] <= currentTime + (burst * 0.15)) {
+                                gameData.notes.push({
+                                    type: 'normal', lane: bLane, hitTime: bHitTime,
+                                    active: true, pressed: false
+                                });
+                            }
+                        }
+                        lastVocalTime = currentTime + 0.5;
+                    } else {
+                        // 일반 롱노트
+                        let lane = getNextAvailableLane(currentTime);
+                        if (laneOccupiedUntil[lane] <= currentTime) {
+                            let duration = 0.5;
+                            gameData.notes.push({
+                                type: 'long', lane: lane, hitTime: hitTime,
+                                duration: duration, active: true, pressed: false,
+                                heldDuration: 0, wasHit: false
+                            });
+                            laneOccupiedUntil[lane] = currentTime + duration + 0.15;
+                            lastVocalTime = currentTime + 0.6;
+                        }
                     }
                 }
             }
 
-            statusText.innerText = "분석 및 노트 생성 성공!";
+            statusText.innerText = `분석 완료! ${isEasy ? '이지' : '하드'} 모드 채보가 생성되었습니다.`;
             drawWaveform(buffer);
             startGame(buffer);
         }
@@ -488,11 +614,12 @@
             waveCtx.clearRect(0, 0, width, height);
             waveCtx.beginPath();
             waveCtx.moveTo(0, amp);
-            waveCtx.strokeStyle = 'rgba(0, 229, 255, 0.4)';
+            waveCtx.strokeStyle = '#00e5ff';
             waveCtx.lineWidth = 1;
 
             for (let i = 0; i < width; i++) {
-                let min = 1.0, max = -1.0;
+                let min = 1.0;
+                let max = -1.0;
                 for (let j = 0; j < step; j++) {
                     const datum = data[(i * step) + j];
                     if (datum < min) min = datum;
@@ -517,22 +644,25 @@
             gameData.duration = buffer.duration;
             progressBar.style.width = "0%";
 
+            // 난이도에 따른 세팅
             if (gameData.difficulty === 'easy') {
-                gameData.speed = 350; // 세로 화면에 딱 맞춘 안정적인 속도
-                gameData.hitWindow = 0.16;
-                gameData.greatWindow = 0.28;
+                gameData.speed = 400;       // 입문자용 느린 속도
+                gameData.hitWindow = 0.15;
+                gameData.greatWindow = 0.30;
             } else {
-                gameData.speed = 500;
+                gameData.speed = 600;       // 기존 이지 수준의 속도
                 gameData.hitWindow = 0.12;
-                gameData.greatWindow = 0.24;
+                gameData.greatWindow = 0.25;
             }
 
-            for (let i = 0; i < 40; i++) {
+            // 몽환적인 배경용 은하수 별 생성
+            for (let i = 0; i < 60; i++) {
                 gameData.bgStars.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    speed: Math.random() * 0.5 + 0.2,
-                    radius: Math.random() * 1.5 + 0.5
+                    speed: Math.random() * 0.5 + 0.1,
+                    radius: Math.random() * 1.5 + 0.5,
+                    alpha: Math.random() * 0.5 + 0.2
                 });
             }
 
@@ -551,115 +681,201 @@
             quitBtn.style.display = 'inline-block';
             requestAnimationFrame(gameLoop);
 
-            sourceNode.onended = () => { endGame(); };
+            sourceNode.onended = () => {
+                endGame();
+            };
         }
 
         function endGame() {
-            if (!gameData.isPlaying) return;
+            if (!gameData.isPlaying) return; // 중복 실행 방지
             gameData.isPlaying = false;
             quitBtn.style.display = 'none';
 
-            for (let i = 0; i < 100; i++) {
+            // 게임 클리어 기념 대형 파티 폭죽 연출
+            for (let i = 0; i < 200; i++) {
                 gameData.particles.push({
-                    x: canvas.width / 2, y: canvas.height / 2,
-                    vx: (Math.random() - 0.5) * 16, vy: (Math.random() - 0.5) * 16,
-                    radius: Math.random() * 12 + 4, alpha: 1, decay: 0.015,
-                    color: laneColors[Math.floor(Math.random() * 4)]
+                    x: canvas.width / 2,
+                    y: canvas.height / 2.5,
+                    vx: (Math.random() - 0.5) * 80,  // 사방으로 뻗어나가는 속도 2배 증가
+                    vy: (Math.random() - 0.5) * 80 - 15, // 위로 솟구치는 힘 대폭 상향
+                    radius: Math.random() * 30 + 15, // 기존 대비 크기를 3배 이상 키워 왕별로 만듦
+                    alpha: 1,
+                    decay: 0.008, // 여운을 위해 아주 천천히 사라짐 (약 2초)
+                    color: Math.random() > 0.2 ? laneColors[Math.floor(Math.random() * 4)] : '#ffffff',
+                    rotation: Math.random() * Math.PI * 2,
+                    rotSpeed: (Math.random() - 0.5) * 1.5
                 });
             }
 
+            // 파티클 애니메이션을 위해 강제로 루프 한 번 시작
+            requestAnimationFrame(gameLoop);
+
+            // 2초 뒤에 결과창 표시
             setTimeout(() => {
                 let total = gameData.successCount + gameData.failCount;
                 let rate = total === 0 ? 0 : Math.round((gameData.successCount / total) * 100);
 
                 let h2 = startScreen.querySelector('h2');
                 let p = startScreen.querySelector('p');
-                if (h2) h2.innerHTML = `<span style="color:#ffeb3b;">CLEAR!</span> <span style="color:#00e5ff;">${rate}%</span>`;
-                if (p) p.innerHTML = `최종 점수: ${gameData.score}<br><br>다른 음악 파일을 선택하여 플레이해 보세요!`;
+                if (h2) h2.innerHTML = `<span style="color:#ffeb3b; text-shadow: 0 0 10px #ffeb3b;">GAME CLEAR!</span><br><span style="font-size:72px; color:#00e5ff; text-shadow: 0 0 20px #00e5ff; display:block;">${rate}%</span>`;
+                if (p) p.innerHTML = `<span style="font-size:20px; font-weight:bold; color:#fff;">최종 점수: ${gameData.score}</span><br><br>다른 곡으로 계속하려면 아래에서 선택하세요.`;
 
+                startScreen.style.background = 'rgba(0, 0, 0, 0.4)'; // 파티클이 잘 보이도록 투명도 조정
                 startScreen.style.display = 'flex';
-            }, 1500);
+                statusText.innerText = "";
+            }, 2000);
         }
 
-        quitBtn.addEventListener('click', () => { if (sourceNode && gameData.isPlaying) sourceNode.stop(); });
+        quitBtn.addEventListener('click', () => {
+            if (sourceNode && gameData.isPlaying) {
+                // stop 호출 시 내부적으로 onended 이벤트가 발생하여 endGame()이 호출됩니다.
+                sourceNode.stop();
+            }
+        });
 
         function gameLoop() {
             if (!gameData.isPlaying && gameData.particles.length === 0) return;
             requestAnimationFrame(gameLoop);
 
-            ctx.fillStyle = '#050510';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 배경 별 연출
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+            // 몽환적인 뒷배경 그리기 (아주 느리게 떨어지는 은하수)
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < gameData.bgStars.length; i++) {
                 let star = gameData.bgStars[i];
-                star.y += star.speed; // 다시 위에서 아래로 흐르게 수정!
-                if (star.y > canvas.height) star.y = 0;
-                ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2); ctx.fill();
+                star.y += star.speed;
+                if (star.y > canvas.height) {
+                    star.y = 0;
+                    star.x = Math.random() * canvas.width;
+                }
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctx.fill();
             }
 
+            // 오디오 컨텍스트의 절대 시간이 아닌, 현재 트랙에 재생 중인 상대적 시간을 구합니다.
             let currentTime = audioCtx.currentTime - gameData.startTime + 2.0;
 
+            // 프로그레스 바 업데이트
             if (gameData.duration > 0) {
                 let progress = Math.min(100, Math.max(0, (currentTime / (gameData.duration + 2.0)) * 100));
                 progressBar.style.width = progress + "%";
             }
 
-            // 4개 세로 레인 구분선 그리기
-            for (let i = 1; i < 4; i++) {
-                ctx.strokeStyle = 'rgba(0, 229, 255, 0.12)';
-                ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(i * gameData.laneWidth, 0); ctx.lineTo(i * gameData.laneWidth, canvas.height); ctx.stroke();
-            }
+            // 부드럽게 빛나는 몽환적인 판정선 배경 띠
+            let lineGrad = ctx.createLinearGradient(0, gameData.hitLineY - 20, 0, gameData.hitLineY + 20);
+            lineGrad.addColorStop(0, 'transparent');
+            lineGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.15)');
+            lineGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = lineGrad;
+            ctx.fillRect(0, gameData.hitLineY - 20, canvas.width, 40);
 
-            // 하단 판정선 그리기
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(0, gameData.hitLineY); ctx.lineTo(canvas.width, gameData.hitLineY); ctx.stroke();
-
-            // 레인 입력 시 스포트라이트 및 광원 연출
             for (let i = 0; i < 4; i++) {
-                let laneX = i * gameData.laneWidth + gameData.laneWidth / 2;
+                let hitRingX = i * gameData.laneWidth + gameData.laneWidth / 2;
+                let color = laneColors[i];
 
                 if (keys[i]) {
+                    // 기둥빛: 오로라처럼 위로 넓게 퍼져나가는 부드러운 스포트라이트
                     let beamGrad = ctx.createLinearGradient(0, gameData.hitLineY, 0, 0);
-                    beamGrad.addColorStop(0, laneColors[i]);
+                    beamGrad.addColorStop(0, color);
+                    beamGrad.addColorStop(0.5, color);
                     beamGrad.addColorStop(1, 'transparent');
+
+                    ctx.save();
+                    ctx.globalAlpha = 0.25;
                     ctx.fillStyle = beamGrad;
-                    ctx.globalAlpha = 0.18;
-                    ctx.fillRect(i * gameData.laneWidth, 0, gameData.laneWidth, gameData.hitLineY);
-                    ctx.globalAlpha = 1.0;
+                    // 직사각형이 아니라, 위로 갈수록 넓게 퍼지는 환상적인 빔 형태
+                    ctx.beginPath();
+                    ctx.moveTo(hitRingX - 15, gameData.hitLineY);
+                    ctx.lineTo(hitRingX + 15, gameData.hitLineY);
+                    ctx.lineTo(hitRingX + 45, 0);
+                    ctx.lineTo(hitRingX - 45, 0);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
                 }
 
-                let glowGrad = ctx.createRadialGradient(laneX, gameData.hitLineY, 0, laneX, gameData.hitLineY, keys[i] ? 45 : 25);
-                glowGrad.addColorStop(0, '#fff');
-                glowGrad.addColorStop(0.3, laneColors[i]);
-                glowGrad.addColorStop(1, 'transparent');
+                // 딱딱한 선(Stroke)이 아닌, 물보라처럼 몽환적인 그라데이션 빛망울 (Radial Gradient)
+                ctx.save();
+                ctx.globalCompositeOperation = 'screen'; // 빛나는 느낌을 극대화하는 블렌딩 모드
+
+                // 크기를 대폭 상향 (몽환적인 빛망울이 레인을 가득 채우도록)
+                let radiusOuter = keys[i] ? 110 : 70;
+                let glowGrad = ctx.createRadialGradient(hitRingX, gameData.hitLineY, 0, hitRingX, gameData.hitLineY, radiusOuter);
+                glowGrad.addColorStop(0, keys[i] ? '#ffffff' : color); // 중심부는 하얗거나 가장 진하게
+                glowGrad.addColorStop(0.3, color);
+                glowGrad.addColorStop(1, 'transparent'); // 바깥쪽으로 경계선 없이 투명하게 소멸
+
                 ctx.fillStyle = glowGrad;
-                ctx.beginPath(); ctx.arc(laneX, gameData.hitLineY, keys[i] ? 45 : 25, 0, Math.PI * 2); ctx.fill();
+                ctx.globalAlpha = keys[i] ? 0.9 : 0.4;
+                ctx.beginPath();
+                ctx.arc(hitRingX, gameData.hitLineY, radiusOuter, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 빛망울 정중앙의 코어(가장 밝은 별자리 역할)
+                ctx.fillStyle = keys[i] ? '#ffffff' : 'rgba(255, 255, 255, 0.4)';
+                ctx.shadowBlur = keys[i] ? 20 : 10;
+                ctx.shadowColor = keys[i] ? '#ffffff' : color;
+                ctx.beginPath();
+                ctx.arc(hitRingX, gameData.hitLineY, keys[i] ? 7 : 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
             }
 
-            // 위에서 아래로 떨어지는 노트 처리
+            // 판정 텍스트 그리기 (화면 중앙 판정선 위쪽)
+            if (gameData.judgmentAlpha > 0) {
+                ctx.save();
+                ctx.globalAlpha = gameData.judgmentAlpha;
+                ctx.textAlign = 'center';
+                ctx.font = 'bold 45px Orbitron';
+
+                let jColor = '#ffffff';
+                if (gameData.lastJudgment === 'PERFECT') jColor = '#00e5ff';
+                else if (gameData.lastJudgment === 'GREAT') jColor = '#00ffaa';
+                else if (gameData.lastJudgment === 'MISS' || gameData.lastJudgment === 'BAD') jColor = '#ff0055';
+
+                ctx.fillStyle = jColor;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = jColor;
+                ctx.fillText(gameData.lastJudgment, canvas.width / 2, gameData.hitLineY - 120);
+
+                // 콤보 표시
+                if (gameData.combo > 1) {
+                    ctx.font = 'bold 28px Orbitron';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = 'rgba(255,255,255,0.5)';
+                    ctx.fillText(`${gameData.combo} COMBO`, canvas.width / 2, gameData.hitLineY - 80);
+                }
+
+                ctx.restore();
+                gameData.judgmentAlpha -= 0.02; // 부드럽게 사라짐
+            }
+
             for (let i = 0; i < gameData.notes.length; i++) {
                 let note = gameData.notes[i];
                 if (!note.active) continue;
 
                 let timeDiff = note.hitTime - currentTime;
                 let y = gameData.hitLineY - (timeDiff * gameData.speed);
-                let x = note.lane * gameData.laneWidth + gameData.laneWidth / 2;
 
                 if (note.type === 'normal') {
-                    if (y > canvas.height + 30) {
+                    if (y > canvas.height + 50) {
                         note.active = false;
-                        handleMiss();
-                    } else if (y > -30) {
-                        ctx.beginPath(); ctx.arc(x, y, 20, 0, Math.PI * 2);
+                        gameData.failCount++;
+                        gameData.combo = 0;
+                        showJudgment("MISS");
+                        updateStats();
+                    } else {
+                        ctx.beginPath();
+                        ctx.arc(note.lane * gameData.laneWidth + gameData.laneWidth / 2, y, 20, 0, Math.PI * 2);
                         ctx.fillStyle = laneColors[note.lane];
-                        ctx.shadowBlur = 8; ctx.shadowColor = laneColors[note.lane];
-                        ctx.fill(); ctx.shadowBlur = 0;
+                        ctx.fill();
                     }
-                } 
+                }
                 else if (note.type === 'long') {
                     let length = note.duration * gameData.speed;
                     let bottomY = y;
@@ -667,79 +883,158 @@
 
                     if (topY > canvas.height) {
                         note.active = false;
-                        if (!note.wasHit) handleMiss();
+                        if (!note.wasHit) {
+                            gameData.failCount++;
+                            updateStats();
+                        }
                     } else {
                         let drawBottomY = bottomY;
+                        let isBeingHit = false;
 
+                        // 한 번이라도 터치된 롱노트라면 판정선을 넘은 부분을 잘라냅니다 (먹구름처럼 사라짐 효과)
                         if (note.wasHit && bottomY > gameData.hitLineY) {
                             if (keys[note.lane]) {
+                                // RhythmEasy 스타일의 시간 기반 heldDuration 누적
                                 if (!note._lastHoldTime) note._lastHoldTime = currentTime;
-                                let delta = currentTime - note._lastHoldTime;
-                                if (delta > 0) note.heldDuration += delta;
+                                let holdDelta = currentTime - note._lastHoldTime;
+                                if (holdDelta > 0) note.heldDuration += holdDelta;
+                                note._lastHoldTime = currentTime;
+
+                                // RhythmEasy 스타일의 지속 진동 (약 50ms 간격으로 100ms 진동 유지)
+                                if (navigator.vibrate) {
+                                    if (!note._lastVibrateTime || currentTime - note._lastVibrateTime > 0.05) {
+                                        navigator.vibrate(100);
+                                        note._lastVibrateTime = currentTime;
+                                    }
+                                }
+                            } else {
                                 note._lastHoldTime = currentTime;
                             }
+
                             drawBottomY = gameData.hitLineY;
 
                             if (keys[note.lane] && bottomY >= gameData.hitLineY && topY <= gameData.hitLineY) {
-                                gameData.score += 1;
-                                scoreBoard.innerText = `SCORE: ${gameData.score}`;
+                                isBeingHit = true;
+                                let scoreGain = Math.floor(2 + note.heldDuration * 20);
+                                gameData.score += scoreGain;
+                                scoreBoard.innerText = `SCORE: ${gameData.score}`; 
+
+                                if (Math.random() > 0.3) {
+                                    // 별 크기 하향 조정 (RhythmEasy 참고하여 적정 수준으로)
+                                    let holdProgress = Math.min(1.0, note.heldDuration / note.duration);
+                                    let baseRadius = 4 + holdProgress * 12;
+
+                                    gameData.particles.push({
+                                        x: note.lane * gameData.laneWidth + gameData.laneWidth / 2 + (Math.random() - 0.5) * 50,
+                                        y: gameData.hitLineY,
+                                        vx: (Math.random() - 0.5) * (6 + holdProgress * 8),
+                                        vy: Math.random() * -4 - 1 - holdProgress * 8,
+                                        radius: Math.random() * (baseRadius / 2) + baseRadius,
+                                        alpha: 1,
+                                        decay: 0.015,
+                                        color: laneColors[note.lane],
+                                        rotation: Math.random() * Math.PI * 2,
+                                        rotSpeed: (Math.random() - 0.5) * 0.8
+                                    });
+                                }
                             }
 
+                            // 롱노트가 끝까지 다 들어갔을 때 70% 이상 유지 확인 후 폭죽 연출
                             if (topY >= gameData.hitLineY && !note.finishedBurst) {
                                 note.finishedBurst = true;
                                 if (note.heldDuration >= note.duration * 0.7) {
-                                    gameData.successCount++; gameData.score += 35; updateStats();
+                                    gameData.successCount++;
+                                    updateStats();
+                                    gameData.score += 50;
+                                    scoreBoard.innerText = `SCORE: ${gameData.score}`;
+                                    let hitX = note.lane * gameData.laneWidth + gameData.laneWidth / 2;
+                                    for (let pNum = 0; pNum < 50; pNum++) {
+                                        gameData.particles.push({
+                                            x: hitX,
+                                            y: gameData.hitLineY,
+                                            vx: (Math.random() - 0.5) * 20,
+                                            vy: (Math.random() - 0.5) * 20 - 5,
+                                            radius: Math.random() * 12 + 6,
+                                            alpha: 1,
+                                            decay: 0.02,
+                                            color: Math.random() > 0.5 ? '#ffffff' : '#ffd700',
+                                            rotation: Math.random() * Math.PI * 2,
+                                            rotSpeed: (Math.random() - 0.5) * 0.8
+                                        });
+                                    }
+                                    if (navigator.vibrate) navigator.vibrate(150);
                                 } else {
-                                    handleMiss();
+                                    handleMiss(); // 70% 미만이면 실패 처리
                                 }
                             }
                         }
 
-                        let drawHeight = drawBottomY - topY;
-                        if (drawHeight > 0 && topY <= gameData.hitLineY) {
+                        let drawLength = drawBottomY - topY;
+
+                        // 화면에 남은 부분만 그리기
+                        if (drawLength > 0 && topY <= gameData.hitLineY) {
                             ctx.fillStyle = laneColors[note.lane];
-                            ctx.globalAlpha = 0.75;
+                            ctx.globalAlpha = 0.8;
                             ctx.beginPath();
-                            ctx.roundRect(note.lane * gameData.laneWidth + 12, topY, gameData.laneWidth - 24, drawHeight, 8);
+                            let noteWidth = gameData.laneWidth - 20;
+                            // 길이가 너무 짧아졌을 때 radius에러가 나지 않도록 유연하게 적용
+                            let radius = Math.min(noteWidth / 2, drawLength / 2);
+                            ctx.roundRect(note.lane * gameData.laneWidth + 10, topY, noteWidth, drawLength, radius > 0 ? radius : 0);
                             ctx.fill();
                             ctx.globalAlpha = 1.0;
-                        } else if (topY > gameData.hitLineY && note.wasHit) {
+                        }
+                        // 완전히 판정선을 통과한 롱노트는 삭제
+                        else if (topY > gameData.hitLineY && note.wasHit) {
                             note.active = false;
                         }
                     }
                 }
             }
 
-            // 판정 텍스트
-            if (gameData.judgmentAlpha > 0) {
-                ctx.save(); ctx.globalAlpha = gameData.judgmentAlpha; ctx.textAlign = 'center';
-                ctx.font = 'bold 38px Orbitron';
-                let jColor = gameData.lastJudgment === 'PERFECT' ? '#00e5ff' : (gameData.lastJudgment === 'GREAT' ? '#00ffaa' : '#ff0055');
-                ctx.fillStyle = jColor;
-                ctx.fillText(gameData.lastJudgment, canvas.width / 2, canvas.height / 2 - 30);
-                
-                if (gameData.combo > 1) {
-                    ctx.font = 'bold 26px Orbitron'; ctx.fillStyle = '#fff';
-                    ctx.fillText(`${gameData.combo} COMBO`, canvas.width / 2, canvas.height / 2 + 15);
-                }
-                ctx.restore(); gameData.judgmentAlpha -= 0.02;
-            }
-
-            // 파티클
             for (let i = gameData.particles.length - 1; i >= 0; i--) {
                 let p = gameData.particles[i];
-                p.x += p.vx; p.y += p.vy; p.alpha -= p.decay || 0.02;
-                if (p.alpha <= 0) { gameData.particles.splice(i, 1); continue; }
-                ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2;
+                p.alpha -= p.decay || 0.02; // 지정된 decay 값만큼 투명도 감소
+                p.rotation += p.rotSpeed;
+
+                if (p.alpha <= 0) {
+                    gameData.particles.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation);
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+
+                let rot = Math.PI / 2 * 3;
+                let step = Math.PI / 5;
+                ctx.beginPath();
+                ctx.moveTo(0, -p.radius);
+                for (let j = 0; j < 5; j++) {
+                    ctx.lineTo(Math.cos(rot) * p.radius, Math.sin(rot) * p.radius);
+                    rot += step;
+                    ctx.lineTo(Math.cos(rot) * (p.radius / 2), Math.sin(rot) * (p.radius / 2));
+                    rot += step;
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
             }
         }
 
         function checkHit(laneIndex) {
             if (!gameData.isPlaying) return;
-            if (navigator.vibrate) navigator.vibrate(25); // 💡 세로 조작 시 시원한 터치 진동 피드백
+
+            // 터치 시 즉각적인 진동 피드백 (RhythmEasy 스타일)
+            if (navigator.vibrate) navigator.vibrate(30);
 
             let currentTime = audioCtx.currentTime - gameData.startTime + 2.0;
+
+            // 이 레인에서 가장 가까운 활성화된 노트를 찾습니다.
             let nearestNote = null;
             let minDiff = Infinity;
 
@@ -747,51 +1042,93 @@
                 let note = gameData.notes[i];
                 if (note.active && note.lane === laneIndex) {
                     let diff = Math.abs(note.hitTime - currentTime);
-                    if (diff < minDiff) { minDiff = diff; nearestNote = note; }
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        nearestNote = note;
+                    }
                 }
             }
 
+            // 1. 근처에 노트가 있는 경우
             if (nearestNote) {
                 if (minDiff < gameData.hitWindow) {
-                    if (nearestNote.type === 'long') nearestNote.wasHit = true;
-                    handleSuccess(nearestNote, "PERFECT", 100, laneIndex);
+                    if (nearestNote.type === 'long') {
+                        nearestNote.wasHit = true; // 롱노트 연주 시작됨
+                        handleSuccess(nearestNote, "PERFECT", 100, laneIndex, true);
+                    } else {
+                        handleSuccess(nearestNote, "PERFECT", 100, laneIndex);
+                    }
                 } else if (minDiff < gameData.greatWindow) {
-                    if (nearestNote.type === 'long') nearestNote.wasHit = true;
-                    handleSuccess(nearestNote, "GREAT", 60, laneIndex);
+                    if (nearestNote.type === 'long') {
+                        nearestNote.wasHit = true;
+                        handleSuccess(nearestNote, "GREAT", 50, laneIndex, true);
+                    } else {
+                        handleSuccess(nearestNote, "GREAT", 50, laneIndex);
+                    }
                 } else if (minDiff < gameData.missWindow) {
+                    // MISS (너무 빨리 눌러서 노트를 날려버림)
                     nearestNote.active = false;
                     handleMiss();
+                } else {
+                    handleBlank();
                 }
+            } else {
+                handleBlank();
             }
         }
 
-        function handleSuccess(note, type, scoreAdd, laneIndex) {
-            if (note.type !== 'long') note.active = false;
-            gameData.successCount++; gameData.combo++; gameData.score += scoreAdd;
+        function handleSuccess(note, type, scoreAdd, laneIndex, isLongStart = false) {
+            if (!isLongStart) note.active = false; // 일반 노트만 즉시 비활성화
+            gameData.successCount++;
+            gameData.combo++;
+            gameData.maxCombo = Math.max(gameData.maxCombo, gameData.combo);
+            gameData.score += scoreAdd;
             scoreBoard.innerText = `SCORE: ${gameData.score}`;
-            showJudgment(type); updateStats();
+            showJudgment(type);
+            updateStats();
+            if (navigator.vibrate) navigator.vibrate(50);
 
-            let laneX = laneIndex * gameData.laneWidth + gameData.laneWidth / 2;
-            for (let pNum = 0; pNum < 12; pNum++) {
+            // 파티클 연출
+            let hitX = laneIndex * gameData.laneWidth + gameData.laneWidth / 2;
+            for (let pNum = 0; pNum < 15; pNum++) {
                 gameData.particles.push({
-                    x: laneX, y: gameData.hitLineY,
-                    vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6 - 2,
-                    radius: Math.random() * 5 + 2, alpha: 1, decay: 0.025, color: laneColors[laneIndex]
+                    x: hitX,
+                    y: gameData.hitLineY,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10 - 2,
+                    radius: Math.random() * 6 + 3,
+                    alpha: 1,
+                    decay: 0.02,
+                    color: laneColors[laneIndex],
+                    rotation: Math.random() * Math.PI * 2,
+                    rotSpeed: (Math.random() - 0.5) * 0.4
                 });
             }
         }
 
         function handleMiss() {
-            gameData.failCount++; gameData.combo = 0;
-            showJudgment("MISS"); updateStats();
+            gameData.failCount++;
+            gameData.combo = 0;
+            showJudgment("MISS");
+            updateStats();
         }
 
-        // PC 키보드 입력 매핑
+        function handleBlank() {
+            // 공타 페널티: 점수를 깎거나 콤보를 끊을 수 있음 (현재는 콤보만 끊기)
+            if (gameData.combo > 0) {
+                gameData.combo = 0;
+                showJudgment("BAD");
+                updateStats();
+            }
+        }
+
+        // 입력 처리 (키보드)
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
             const keyMap = { 'd': 0, 'f': 1, 'j': 2, 'k': 3 };
             if (keyMap[key] !== undefined && !keys[keyMap[key]]) {
-                keys[keyMap[key]] = true; checkHit(keyMap[key]);
+                keys[keyMap[key]] = true;
+                checkHit(keyMap[key]);
             }
         });
         document.addEventListener('keyup', (e) => {
@@ -800,17 +1137,19 @@
             if (keyMap[key] !== undefined) keys[keyMap[key]] = false;
         });
 
-        // 💡 핵심: 세로 화면 가로 분할 터치 조작 매핑 (왼쪽 엄지 1,2번 / 오른쪽 엄지 3,4번 라인 대응)
+        // 입력 처리 (모바일 터치)
         canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // 더블클릭 줌인 확대 현상 완벽 방지
+            e.preventDefault();
             const rect = canvas.getBoundingClientRect();
+
             for (let i = 0; i < e.changedTouches.length; i++) {
                 const touch = e.changedTouches[i];
-                // 화면의 X 좌표를 기준으로 4개의 세로 레인을 판정합니다.
                 const x = touch.clientX - rect.left;
                 const laneIndex = Math.floor(x / (rect.width / 4));
+
                 if (laneIndex >= 0 && laneIndex < 4) {
-                    keys[laneIndex] = true; checkHit(laneIndex);
+                    keys[laneIndex] = true;
+                    checkHit(laneIndex);
                 }
             }
         }, { passive: false });
@@ -818,15 +1157,21 @@
         canvas.addEventListener('touchend', (e) => {
             e.preventDefault();
             const rect = canvas.getBoundingClientRect();
+
             for (let i = 0; i < e.changedTouches.length; i++) {
                 const touch = e.changedTouches[i];
                 const x = touch.clientX - rect.left;
                 const laneIndex = Math.floor(x / (rect.width / 4));
-                if (laneIndex >= 0 && laneIndex < 4) keys[laneIndex] = false;
+                if (laneIndex >= 0 && laneIndex < 4) {
+                    keys[laneIndex] = false;
+                }
             }
         }, { passive: false });
 
-        canvas.addEventListener('touchcancel', () => { keys.fill(false); });
+        canvas.addEventListener('touchcancel', (e) => {
+            keys.fill(false);
+        });
+
     </script>
 </body>
 
